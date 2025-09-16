@@ -1,8 +1,9 @@
-from pydantic import BaseModel, model_validator, root_validator, field_validator
+from pydantic import BaseModel, model_validator
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 import json
 import hashlib
+
 
 class APIType:
     """
@@ -22,7 +23,7 @@ class ARCTask(BaseModel):
     train: List[ARCPair]
     test: List[ARCPair]
     
-    def __eq__(self, other: 'ARCTask') -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ARCTask):
             return False
         return (len(self.train) == len(other.train) and
@@ -150,17 +151,23 @@ class Attempt(BaseModel):
             raise KeyError("answer")
         return values
 
-    @field_validator('answer', mode='before')
-    @classmethod
-    def parse_answer(cls, v: Union[str, List[List[int]]]):
-        """Parse answer strings using the backscan_json_parser."""
-        if isinstance(v, str):
-            from .utils.parsing import parse_and_validate_json
+    # This function was in the original benchmarking implementation, but it
+    # is likely a bug. Raw responses from LLMs are saved in the `answer` field
+    # which this validator tries to parse as JSON. Unless the response already
+    # is in a _very_ specific JSON format of list of lists, this will raise
+    # an exception which will prevent the ArcTester from ever attempting to
+    # run the provider's `extract_json_from_response` function.
+    # @field_validator('answer', mode='before')
+    # @classmethod
+    # def parse_answer(cls, v: Union[str, List[List[int]]]):
+    #     """Parse answer strings using the backscan_json_parser."""
+    #     if isinstance(v, str):
+    #         from .utils.parsing import parse_and_validate_json
 
-            parsed = parse_and_validate_json(v)
-            if parsed is not None:
-                return parsed
-        return v
+    #         parsed = parse_and_validate_json(v)
+    #         if parsed is not None:
+    #             return parsed
+    #     return v
 
 class TestPairAttempts(BaseModel):
     attempts: List[Optional[Attempt]]
@@ -212,7 +219,7 @@ class TestPairAttempts(BaseModel):
             return len(self.attempts)
         return 0
     
-    def __iter__(self):
+    def __iter__(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Allow iteration over attempts.
         """
@@ -234,7 +241,7 @@ class BenchmarkedTaskResults(BaseModel):
     def __getitem__(self, index):
         return self.test_pairs[index]
     
-    def __iter__(self):
+    def __iter__(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         return iter(self.test_pairs)
     
 class ModelPricing(BaseModel):
