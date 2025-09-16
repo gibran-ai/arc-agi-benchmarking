@@ -1,5 +1,14 @@
 from .provider import ProviderAdapter
-from arc_agi_benchmarking.schemas import ARCTaskOutput, AttemptMetadata, Choice, Message, Usage, Cost, CompletionTokensDetails, Attempt
+from arc_agi_benchmarking.schemas import (
+    ARCTaskOutput,
+    AttemptMetadata,
+    Choice,
+    Message,
+    Usage,
+    Cost,
+    CompletionTokensDetails,
+    Attempt,
+)
 import anthropic
 import os
 from dotenv import load_dotenv
@@ -11,6 +20,7 @@ import logging
 load_dotenv()
 
 logger = logging.getLogger(__name__)
+
 
 class AnthropicAdapter(ProviderAdapter):
     def init_client(self):
@@ -25,41 +35,43 @@ class AnthropicAdapter(ProviderAdapter):
         )
 
         return client
-    
-    def make_prediction(self, prompt: str, task_id: Optional[str] = None, test_id: Optional[str] = None, pair_index: int = None) -> Attempt:
+
+    def make_prediction(
+        self,
+        prompt: str,
+        task_id: Optional[str] = None,
+        test_id: Optional[str] = None,
+        pair_index: int = None,
+    ) -> Attempt:
         """
         Make a prediction with the Anthropic model and return an Attempt object
-        
+
         Args:
             prompt: The prompt to send to the model
             task_id: Optional task ID to include in metadata
             test_id: Optional test ID to include in metadata
         """
         start_time = datetime.now(timezone.utc)
-        
-        messages = [
-            {"role": "user", "content": prompt}
-        ]
+
+        messages = [{"role": "user", "content": prompt}]
 
         response = self.chat_completion(messages)
         end_time = datetime.now(timezone.utc)
 
         # Use pricing from model config
-        input_cost_per_token = self.model_config.pricing.input / 1_000_000  # Convert from per 1M tokens
-        output_cost_per_token = self.model_config.pricing.output / 1_000_000  # Convert from per 1M tokens
-        
+        input_cost_per_token = (
+            self.model_config.pricing.input / 1_000_000
+        )  # Convert from per 1M tokens
+        output_cost_per_token = (
+            self.model_config.pricing.output / 1_000_000
+        )  # Convert from per 1M tokens
+
         prompt_cost = response.usage.input_tokens * input_cost_per_token
         completion_cost = response.usage.output_tokens * output_cost_per_token
 
         # Convert input messages to choices
         input_choices = [
-            Choice(
-                index=i,
-                message=Message(
-                    role=msg["role"],
-                    content=msg["content"]
-                )
-            )
+            Choice(index=i, message=Message(role=msg["role"], content=msg["content"]))
             for i, msg in enumerate(messages)
         ]
 
@@ -69,8 +81,12 @@ class AnthropicAdapter(ProviderAdapter):
                 index=len(input_choices),
                 message=Message(
                     role="assistant",
-                    content=content.text if content.type == "text" else json.dumps(content.input)
-                )
+                    content=(
+                        content.text
+                        if content.type == "text"
+                        else json.dumps(content.input)
+                    ),
+                ),
             )
             for content in response.content
             if content.type in ["text", "tool_use"]
@@ -98,17 +114,17 @@ class AnthropicAdapter(ProviderAdapter):
                 completion_tokens_details=CompletionTokensDetails(
                     reasoning_tokens=0,  # Anthropic doesn't provide this breakdown
                     accepted_prediction_tokens=response.usage.output_tokens,
-                    rejected_prediction_tokens=0  # Anthropic doesn't provide this
-                )
+                    rejected_prediction_tokens=0,  # Anthropic doesn't provide this
+                ),
             ),
             cost=Cost(
                 prompt_cost=prompt_cost,
                 completion_cost=completion_cost,
-                total_cost=prompt_cost + completion_cost
+                total_cost=prompt_cost + completion_cost,
             ),
             task_id=task_id,  # Add task_id to metadata
             pair_index=pair_index,  # Add pair_index to metadata
-            test_id=test_id  # Add test_id to metadata
+            test_id=test_id,  # Add test_id to metadata
         )
 
         # Incase there is a thinking block
@@ -118,10 +134,7 @@ class AnthropicAdapter(ProviderAdapter):
                 answer = content.text
                 break
 
-        attempt = Attempt(
-            metadata=metadata,
-            answer=answer
-        )
+        attempt = Attempt(metadata=metadata, answer=answer)
 
         return attempt
 
@@ -129,28 +142,35 @@ class AnthropicAdapter(ProviderAdapter):
         """
         Make a raw API call to Anthropic and return the response
         """
-        
+
         return self.client.messages.create(
             model=self.model_config.model_name,
             messages=messages,
             tools=tools,
-            **self.model_config.kwargs
+            **self.model_config.kwargs,
         )
-    
+
     def _get_reasoning_summary(self, response: Any) -> str:
         """Get the reasoning summary from the response."""
         reasoning_summary = None
         thinking_texts: List[str] = []
         try:
-            if hasattr(response, 'content') and response.content:
+            if hasattr(response, "content") and response.content:
                 for block in response.content:
-                    if hasattr(block, 'type') and block.type == "thinking" and hasattr(block, 'thinking'):
-                        if isinstance(block.thinking, str): # Ensure it's a string
+                    if (
+                        hasattr(block, "type")
+                        and block.type == "thinking"
+                        and hasattr(block, "thinking")
+                    ):
+                        if isinstance(block.thinking, str):  # Ensure it's a string
                             thinking_texts.append(block.thinking)
             if thinking_texts:
                 reasoning_summary = "\n\n".join(thinking_texts)
         except Exception as e:
-            logger.warning(f"Error extracting thinking blocks from Anthropic response: {e}", exc_info=True)
+            logger.warning(
+                f"Error extracting thinking blocks from Anthropic response: {e}",
+                exc_info=True,
+            )
         return reasoning_summary
 
     def extract_json_from_response(self, input_response: str) -> List[List[int]]:
@@ -163,17 +183,12 @@ class AnthropicAdapter(ProviderAdapter):
                     "properties": {
                         "response": {
                             "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "type": "integer"
-                                }
-                            },
-                            "description": "A list of lists of integers extracted from the response."
+                            "items": {"type": "array", "items": {"type": "integer"}},
+                            "description": "A list of lists of integers extracted from the response.",
                         }
                     },
-                    "required": ["response"]
-                }
+                    "required": ["response"],
+                },
             }
         ]
 
@@ -188,8 +203,7 @@ class AnthropicAdapter(ProviderAdapter):
         """
 
         response = self.chat_completion(
-            messages=[{"role": "user", "content": query}],
-            tools=tools
+            messages=[{"role": "user", "content": query}], tools=tools
         )
 
         json_response = None
@@ -199,10 +213,11 @@ class AnthropicAdapter(ProviderAdapter):
                 break
 
         if json_entities:
-            return json_entities['response']
+            return json_entities["response"]
         else:
             return None
-        
+
+
 if __name__ == "__main__":
     adapter = AnthropicAdapter("claude-3-5-sonnet-20240620")
     print(type(adapter.extract_json_from_response("[[1, 2, 3], [4, 5, 6]]")))
