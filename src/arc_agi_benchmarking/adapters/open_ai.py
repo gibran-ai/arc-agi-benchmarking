@@ -81,6 +81,8 @@ class OpenAIAdapter(OpenAIBaseAdapter):
         all_choices = input_choices + response_choices
 
         # Create metadata
+        if isinstance(reasoning_summary, list):
+            reasoning_summary = str(reasoning_summary)
         metadata = AttemptMetadata(
             model=self.model_config.model_name,
             provider=self.model_config.provider,
