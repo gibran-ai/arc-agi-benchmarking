@@ -39,7 +39,7 @@ class OpenAIAdapter(OpenAIBaseAdapter):
         prompt: str,
         task_id: Optional[str] = None,
         test_id: Optional[str] = None,
-        pair_index: int = None,
+        pair_index: int | None = None,
     ) -> Attempt:
         """
         Make a prediction with the OpenAI model and return an Attempt object

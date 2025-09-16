@@ -41,7 +41,7 @@ class AnthropicAdapter(ProviderAdapter):
         prompt: str,
         task_id: Optional[str] = None,
         test_id: Optional[str] = None,
-        pair_index: int = None,
+        pair_index: int | None = None,
     ) -> Attempt:
         """
         Make a prediction with the Anthropic model and return an Attempt object

@@ -44,7 +44,7 @@ class FireworksAdapter(OpenAIBaseAdapter):  # Inherit from OpenAIBaseAdapter
         prompt: str,
         task_id: Optional[str] = None,
         test_id: Optional[str] = None,
-        pair_index: int = None,
+        pair_index: int | None = None,
     ) -> Attempt:
         """
         Make a prediction using the Fireworks model.
