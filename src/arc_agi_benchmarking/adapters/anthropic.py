@@ -150,7 +150,7 @@ class AnthropicAdapter(ProviderAdapter):
             **self.model_config.kwargs,
         )
 
-    def _get_reasoning_summary(self, response: Any) -> str:
+    def _get_reasoning_summary(self, response: Any) -> str | None:
         """Get the reasoning summary from the response."""
         reasoning_summary = None
         thinking_texts: List[str] = []
@@ -173,7 +173,7 @@ class AnthropicAdapter(ProviderAdapter):
             )
         return reasoning_summary
 
-    def extract_json_from_response(self, input_response: str) -> List[List[int]]:
+    def extract_json_from_response(self, input_response: str) -> List[List[int]] | None:
         tools = [
             {
                 "name": "extract_json",
@@ -206,7 +206,7 @@ class AnthropicAdapter(ProviderAdapter):
             messages=[{"role": "user", "content": query}], tools=tools
         )
 
-        json_response = None
+        json_entities = None
         for content in response.content:
             if content.type == "tool_use" and content.name == "extract_json":
                 json_entities = content.input
