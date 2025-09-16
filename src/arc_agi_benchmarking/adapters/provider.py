@@ -1,7 +1,5 @@
 import abc
-from typing import List, Dict, Tuple, Any, Optional
-import json
-from datetime import datetime
+from typing import List, Dict, Any
 from arc_agi_benchmarking.schemas import Attempt, ModelConfig
 from arc_agi_benchmarking.utils.task_utils import read_models_config
 
@@ -25,7 +23,7 @@ class ProviderAdapter(abc.ABC):
         self.client = self.init_client()
 
     @abc.abstractmethod
-    def init_client(self):
+    def init_client(self) -> Any:
         """
         Initialize the client for the provider. Each adapter must implement this.
         Should handle API key validation and client setup.
@@ -33,7 +31,7 @@ class ProviderAdapter(abc.ABC):
         pass
     
     @abc.abstractmethod
-    def make_prediction(self, prompt: str, task_id: Optional[str] = None, test_id: Optional[str] = None, pair_index: int = None) -> Attempt:
+    def make_prediction(self, prompt: str, task_id: str | None = None, test_id: str | None = None, pair_index: int | None = None) -> Attempt:
         """
         Make a prediction with the model and return an Attempt object's answer
         
