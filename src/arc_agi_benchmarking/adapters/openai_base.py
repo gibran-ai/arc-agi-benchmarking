@@ -56,7 +56,7 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
         prompt: str,
         task_id: Optional[str] = None,
         test_id: Optional[str] = None,
-        pair_index: int = None,
+        pair_index: int | None = None,
     ) -> Attempt:
         """
         Make a prediction with the model and return an Attempt object.
@@ -349,6 +349,8 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
                 reasoning_tokens = getattr(
                     raw_usage.output_tokens_details, "reasoning_tokens", 0
                 )
+        else:
+            raise ValueError(f"Unknown API type: {self.model_config.api_type}.")
 
         # If no explicit reasoning tokens but total > prompt + completion, infer reasoning
         if reasoning_tokens == 0 and total_tokens > (prompt_tokens + completion_tokens):
@@ -366,7 +368,7 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
             ),
         )
 
-    def _get_reasoning_summary(self, response: Any) -> Optional[List[Dict[str, Any]]]:
+    def _get_reasoning_summary(self, response: Any) -> Optional[List[Dict[str, Any]]] | str:
         """
         Extract reasoning summary from the response if available (primarily for Responses API).
         """
