@@ -119,7 +119,9 @@ class GeminiAdapter(ProviderAdapter):
             ),
             task_id=task_id, pair_index=pair_index, test_id=test_id
         )
+        logger.debug("Creating attempt with answer: %s", response_text)
         attempt = Attempt(metadata=metadata, answer=response_text)
+        logger.debug("Attempt created.")
         return attempt
 
     def chat_completion(self, messages: list):
