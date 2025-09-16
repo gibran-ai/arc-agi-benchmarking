@@ -67,7 +67,7 @@ class ProviderAdapter(abc.ABC):
         )
 
     @abc.abstractmethod
-    def extract_json_from_response(self, input_response: str) -> List[List[int]]:
+    def extract_json_from_response(self, input_response: str) -> List[List[int]] | None:
         """
         Extract JSON from various possible formats in the response
         """
