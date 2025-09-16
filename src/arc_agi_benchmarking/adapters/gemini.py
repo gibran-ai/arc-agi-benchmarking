@@ -53,7 +53,7 @@ class GeminiAdapter(ProviderAdapter):
         start_time = datetime.now(timezone.utc)
 
         messages = [{"role": "user", "content": prompt}]
-        response = self.chat_completion(messages)
+        response = self.chat_completion(messages, [])
 
         if response is None:
             logger.error(
@@ -82,7 +82,6 @@ class GeminiAdapter(ProviderAdapter):
                     kwargs=self.model_config.kwargs,
                     usage=default_usage,
                     cost=default_cost,
-                    error_message="Failed to get valid response from provider",
                     task_id=task_id,
                     pair_index=pair_index,
                     test_id=test_id,
@@ -163,7 +162,8 @@ class GeminiAdapter(ProviderAdapter):
         logger.debug("Attempt created.")
         return attempt
 
-    def chat_completion(self, messages: list):
+    def chat_completion(self, messages: list, tools: list = []):
+        del tools  # Unused
         contents_list = []
         for msg in messages:
             role = msg.get("role")
@@ -201,8 +201,8 @@ class GeminiAdapter(ProviderAdapter):
             return response
         except Exception as e:
             logger.error(f"Error in chat_completion with google.genai: {e}")
-            if hasattr(e, "response") and e.response:
-                logger.error(f"API Error details: {e.response}")
+            if hasattr(e, "response") and e.response:  # pyright: ignore[reportAttributeAccessIssue]
+                logger.error(f"API Error details: {e.response}")  # pyright: ignore[reportAttributeAccessIssue]
             return None
 
     def extract_json_from_response(
