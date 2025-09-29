@@ -180,7 +180,7 @@ class ARCScorer:
                 self.print_log(f"BenchmarkedTaskResults validation error: {e}")
                 task_submission = BenchmarkedTaskResults(test_pairs=[])
 
-        task = ARCTask.from_dict(self.solutions[task_id])  # pyright: ignore[reportArgumentType] 
+        task = ARCTask.from_dict(self.solutions[task_id])  # pyright: ignore[reportArgumentType]
         return self.score_task(task, task_submission)
 
     def score_submission(self) -> Tuple[float, int]:

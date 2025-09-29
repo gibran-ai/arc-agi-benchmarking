@@ -146,9 +146,12 @@ class Attempt(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def check_answer_present(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Ensure the required 'answer' field exists."""
-        if isinstance(values, dict) and "answer" not in values:
-            raise KeyError("answer")
+        """Ensure the required 'answer' and 'metadata' fields exists only when the values is a dictionary."""
+        if isinstance(values, dict):
+            if "answer" not in values:
+                raise KeyError("answer")
+            if "metadata" not in values:
+                raise KeyError("metadata")
         return values
 
     # This function was in the original benchmarking implementation, but it

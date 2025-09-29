@@ -4,8 +4,8 @@ from pathlib import Path
 from arc_agi_benchmarking.scoring import ARCScorer
 from pydantic import ValidationError
 
-# Helper function to create mock JSON files
 def create_mock_json(path: Path, data: dict):
+    """Helper function to create mock JSON files"""
     with open(path, 'w') as f:
         json.dump(data, f)
 
@@ -299,10 +299,13 @@ def run_error_test_scenario(arc_scorer_fixture, submission_data, expected_except
         scorer.score_task_from_file(task_id, submission_file)
 
 def test_malformed_not_dict(arc_scorer_fixture):
-    run_error_test_scenario(arc_scorer_fixture, SUBMISSION_MALFORMED_NOT_DICT, ValidationError)
+    # This scenario is no longer expected to throw a ValidationError.
+    # Instead, now it is equivalent to not having submissions.
+    run_test_scenario(arc_scorer_fixture, SUBMISSION_MALFORMED_NOT_DICT, 0.0, 0.0, 0)
+
 
 def test_malformed_no_metadata(arc_scorer_fixture):
-    run_error_test_scenario(arc_scorer_fixture, SUBMISSION_MALFORMED_NO_METADATA, ValidationError)
+    run_error_test_scenario(arc_scorer_fixture, SUBMISSION_MALFORMED_NO_METADATA, KeyError)
 
 def test_malformed_no_answer(arc_scorer_fixture):
     run_error_test_scenario(arc_scorer_fixture, SUBMISSION_MALFORMED_NO_ANSWER, KeyError)
