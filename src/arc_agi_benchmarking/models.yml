@@ -577,6 +577,68 @@ models:
 #### Anthropic ####
 ###################
 
+  - name: "claude-sonnet-4-5-20250929-thinking-32k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 32000
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929-thinking-16k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 16000
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929-thinking-8k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 8000
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929-thinking-1k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 1024
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
   - name: "claude-4-sonnet-20250522-thinking-8k-bedrock"
     model_name: "anthropic/claude-sonnet-4"
     provider: "openrouter"
