@@ -13,10 +13,10 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 src_dir = os.path.join(project_root, 'src')
 
 if project_root not in sys.path:
-    sys.path.insert(0, project_root) # For importing main.py
+    sys.path.insert(0, project_root)  # For importing main.py
 
 if src_dir not in sys.path:
-    sys.path.insert(0, src_dir) # For importing arc_agi_benchmarking from src
+    sys.path.insert(0, src_dir)  # For importing arc_agi_benchmarking from src
 
 from main import ARCTester
 from arc_agi_benchmarking.utils.task_utils import read_models_config, read_provider_rate_limits
@@ -71,12 +71,12 @@ DEFAULT_MODEL_CONFIGS_TO_TEST: List[str] = [
 ]
 
 DEFAULT_DATA_DIR = "data/arc-agi/data/evaluation"
-DEFAULT_SUBMISSIONS_ROOT = "submissions" # Changed from DEFAULT_SAVE_SUBMISSION_DIR_BASE
+DEFAULT_SUBMISSIONS_ROOT = "submissions"  # Changed from DEFAULT_SAVE_SUBMISSION_DIR_BASE
 DEFAULT_OVERWRITE_SUBMISSION = False
-DEFAULT_PRINT_SUBMISSION = False # ARCTester specific: whether it logs submission content
+DEFAULT_PRINT_SUBMISSION = False  # ARCTester specific: whether it logs submission content
 DEFAULT_NUM_ATTEMPTS = 2
 DEFAULT_RETRY_ATTEMPTS = 2
-# DEFAULT_PRINT_LOGS = False # This is now controlled by the global log level
+# DEFAULT_PRINT_LOGS = False  # This is now controlled by the global log level
 
 # --- Globals for Orchestrator ---
 PROVIDER_RATE_LIMITERS: Dict[str, AsyncRequestRateLimiter] = {}
@@ -112,9 +112,9 @@ def get_or_create_rate_limiter(provider_name: str, all_provider_limits: Dict) ->
     return PROVIDER_RATE_LIMITERS[provider_name]
 
 async def run_single_test_wrapper(config_name: str, task_id: str, limiter: AsyncRequestRateLimiter,
-                                  data_dir: str, submissions_root: str, # Changed from save_submission_dir_base
+                                  data_dir: str, submissions_root: str,  # Changed from save_submission_dir_base
                                   overwrite_submission: bool, print_submission: bool,
-                                  num_attempts: int, retry_attempts: int) -> bool: # removed print_logs
+                                  num_attempts: int, retry_attempts: int) -> bool:  # removed print_logs
     logger.info(f"[Orchestrator] Queuing task: {task_id}, config: {config_name}")
 
     # Apply tenacity retry decorator directly to the synchronous function
@@ -131,9 +131,9 @@ async def run_single_test_wrapper(config_name: str, task_id: str, limiter: Async
             config=config_name,
             save_submission_dir=submissions_root,
             overwrite_submission=overwrite_submission,
-            print_submission=print_submission, # This ARCTester arg controls if it logs submission content
+            print_submission=print_submission,  # This ARCTester arg controls if it logs submission content
             num_attempts=num_attempts,
-            retry_attempts=retry_attempts # ARCTester's internal retries
+            retry_attempts=retry_attempts  # ARCTester's internal retries
             # print_logs removed from ARCTester instantiation
         )
         logger.debug(f"[Thread-{task_id}-{config_name}] Starting generate_task_solution...")
@@ -147,20 +147,20 @@ async def run_single_test_wrapper(config_name: str, task_id: str, limiter: Async
         async with limiter:
             logger.info(f"[Orchestrator] Rate limiter acquired for: {config_name}. Executing task {task_id} with tenacity retries...")
             await asyncio.to_thread(_synchronous_task_execution_attempt_with_tenacity)
-        
+
         logger.info(f"[Orchestrator] Successfully processed (with tenacity retries if any): {config_name} / {task_id}")
         return True
     except Exception as e:
         logger.error(f"[Orchestrator] Failed to process (after all tenacity retries or due to non-retryable error): {config_name} / {task_id}. Error: {type(e).__name__} - {e}", exc_info=True)
         return False
 
-async def main(task_list_file: Optional[str], # Added Optional
+async def main(task_list_file: Optional[str],  # Added Optional
                model_configs_to_test: List[str],
                data_dir: str, submissions_root: str,
                overwrite_submission: bool, print_submission: bool,
-               num_attempts: int, retry_attempts: int) -> int: # Added return type hint
+               num_attempts: int, retry_attempts: int) -> int:  # Added return type hint
     # Basic logging setup is now done in if __name__ == "__main__"
-    
+
     start_time = time.perf_counter()
     logger.info("Starting ARC Test Orchestrator...")
     logger.info(f"Testing with model configurations: {model_configs_to_test}")
@@ -173,39 +173,39 @@ async def main(task_list_file: Optional[str], # Added Optional
                 task_ids = [line.strip() for line in f if line.strip()]
             if not task_ids:
                 logger.error(f"No task IDs found in {task_list_file}. Exiting.")
-                return 1 # Return an error code
+                return 1  # Return an error code
             logger.info(f"Loaded {len(task_ids)} task IDs from {task_list_file}.")
         else:
             logger.info(f"No task list file provided. Inferring task list from data directory: {data_dir}")
             task_ids = [
-                os.path.splitext(fname)[0] 
-                for fname in os.listdir(data_dir) 
+                os.path.splitext(fname)[0]
+                for fname in os.listdir(data_dir)
                 if os.path.isfile(os.path.join(data_dir, fname)) and fname.endswith('.json')
             ]
             if not task_ids:
                 logger.error(f"No task files (.json) found in {data_dir}. Exiting.")
-                return 1 # Return an error code
+                return 1  # Return an error code
             logger.info(f"Found {len(task_ids)} task IDs in {data_dir}.")
 
     except FileNotFoundError:
         if task_list_file:
             logger.error(f"Task list file not found: {task_list_file}. Exiting.")
-        else: # Should not happen if data_dir is validated by argparse, but as a safeguard
+        else:  # Should not happen if data_dir is validated by argparse, but as a safeguard
             logger.error(f"Data directory not found: {data_dir}. Exiting.")
-        return 1 # Return an error code
+        return 1  # Return an error code
     except Exception as e:
         logger.error(f"Error loading tasks: {e}", exc_info=True)
-        return 1 # Return an error code
+        return 1  # Return an error code
 
     all_jobs_to_run: List[Tuple[str, str]] = []
     for config_name in model_configs_to_test:
         for task_id in task_ids:
             all_jobs_to_run.append((config_name, task_id))
-    
+
     if not all_jobs_to_run:
         logger.warning("No jobs to run (check model_configs_to_test and task list). Exiting.")
-        return 1 # Return an error code
-    
+        return 1  # Return an error code
+
     logger.info(f"Total jobs to process: {len(all_jobs_to_run)}")
 
     try:
@@ -227,17 +227,17 @@ async def main(task_list_file: Optional[str], # Added Optional
             async_tasks_to_execute.append(run_single_test_wrapper(
                 config_name, task_id, limiter,
                 data_dir, submissions_root,
-                overwrite_submission, print_submission, 
+                overwrite_submission, print_submission,
                 num_attempts, retry_attempts
             ))
-        except ValueError as e: # Specific error for model config issues
+        except ValueError as e:  # Specific error for model config issues
             logger.error(f"Skipping config '{config_name}' for task '{task_id}' due to model config error: {e}")
-        except Exception as e: # General error for other setup issues
+        except Exception as e:  # General error for other setup issues
             logger.error(f"Unexpected error setting up task for '{config_name}', '{task_id}': {e}", exc_info=True)
 
     if not async_tasks_to_execute:
         logger.warning("No tasks could be prepared for execution. Exiting.")
-        return 1 # Return an error code
+        return 1  # Return an error code
 
     logger.info(f"Executing {len(async_tasks_to_execute)} tasks concurrently...")
     results = await asyncio.gather(*async_tasks_to_execute, return_exceptions=True)
@@ -246,35 +246,35 @@ async def main(task_list_file: Optional[str], # Added Optional
     orchestrator_level_failures = sum(1 for r in results if r is False or isinstance(r, Exception))
 
     logger.info("--- Orchestrator Summary ---")
-    exit_code = 0 # Default to success
+    exit_code = 0  # Default to success
     if orchestrator_level_failures == 0:
         logger.info(f"✨ All {successful_runs} test configurations completed successfully by the orchestrator.")
     else:
         logger.error(f"💥 {orchestrator_level_failures} out of {len(results)} test configurations failed or encountered errors during orchestration.")
         for i, res in enumerate(results):
-            original_job_config, original_job_task_id = all_jobs_to_run[i] # Get original job details
+            original_job_config, original_job_task_id = all_jobs_to_run[i]  # Get original job details
             if isinstance(res, Exception):
                 logger.error(f"  - Error for {original_job_config}/{original_job_task_id}: {type(res).__name__} - {str(res)}", exc_info=True)
-            elif res is False: # Wrapper reported failure
+            elif res is False:  # Wrapper reported failure
                 logger.warning(f"  - Failure reported by wrapper for {original_job_config}/{original_job_task_id} (check ARCTester logs for this task/config)")
-        exit_code = 1 # Indicate failure
-    
+        exit_code = 1  # Indicate failure
+
     logger.info("Note: Individual task success/failure is logged by ARCTester within its own logger (main.py's logger).")
     logger.info("Orchestrator failure indicates an issue with running the ARCTester task itself or an unhandled exception in the wrapper.")
-    
+
     end_time = time.perf_counter()
     total_duration = end_time - start_time
     logger.info("--- Orchestrator Timing ---")
     logger.info(f"Total execution time for cli/run_all.py: {total_duration:.2f} seconds")
-    
+
     return exit_code
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run ARC tasks concurrently. Tasks can be specified via a task list file or inferred from a data directory.")
     parser.add_argument(
-        "--task_list_file", 
-        type=str, 
-        default=None, # Default to None, indicating it's optional
+        "--task_list_file",
+        type=str,
+        default=None,  # Default to None, indicating it's optional
         required=False,
         help="Optional path to a .txt file containing task IDs, one per line. If not provided, tasks are inferred from all .json files in --data_dir."
     )
@@ -291,19 +291,19 @@ if __name__ == "__main__":
         help=f"Data set directory to run. If --task_list_file is not used, .json task files are inferred from here. Defaults to {DEFAULT_DATA_DIR}"
     )
     parser.add_argument(
-        "--submissions-root", # Renamed from --save_submission_dir_base
+        "--submissions-root",  # Renamed from --save_submission_dir_base
         type=str,
         default=DEFAULT_SUBMISSIONS_ROOT,
         help=f"Root folder name to save submissions under. Subfolders per config will be created. Defaults to {DEFAULT_SUBMISSIONS_ROOT}"
     )
     parser.add_argument(
         "--overwrite_submission",
-        action="store_true", # Defaults to False if not present
+        action="store_true",  # Defaults to False if not present
         help=f"Overwrite submissions if they already exist. Defaults to {DEFAULT_OVERWRITE_SUBMISSION}"
     )
     parser.add_argument(
-        "--print_submission", # This flag is for ARCTester to log submission content
-        action="store_true", # Defaults to False if not present
+        "--print_submission",  # This flag is for ARCTester to log submission content
+        action="store_true",  # Defaults to False if not present
         help=f"Enable ARCTester to log final submission content (at INFO level). Defaults to {DEFAULT_PRINT_SUBMISSION}"
     )
     parser.add_argument(
@@ -319,15 +319,15 @@ if __name__ == "__main__":
         help=f"Number of internal retry attempts by ARCTester for failed predictions. Defaults to {DEFAULT_RETRY_ATTEMPTS}"
     )
     parser.add_argument(
-        "--log-level", 
-        type=str, 
+        "--log-level",
+        type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "NONE"],
         help="Set the logging level for the orchestrator and ARCTester (default: INFO). Use NONE to disable logging."
     )
     parser.add_argument(
         "--enable-metrics",
-        action="store_true", # Defaults to False if not present
+        action="store_true",  # Defaults to False if not present
         help="Enable metrics collection and dumping (disabled by default)."
     )
 
@@ -345,11 +345,11 @@ if __name__ == "__main__":
 
     # Configure logging for the entire application based on --log-level
     if args.log_level == "NONE":
-        log_level_to_set = logging.CRITICAL + 1 
+        log_level_to_set = logging.CRITICAL + 1
         logging.basicConfig(
             level=log_level_to_set,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[logging.StreamHandler(sys.stdout)] 
+            handlers=[logging.StreamHandler(sys.stdout)]
         )
     else:
         log_level_to_set = getattr(logging, args.log_level.upper())
@@ -360,21 +360,21 @@ if __name__ == "__main__":
         )
 
     model_configs_list = [m.strip() for m in args.model_configs.split(',') if m.strip()]
-    if not model_configs_list: 
-        model_configs_list = DEFAULT_MODEL_CONFIGS_TO_TEST # Fallback to default
+    if not model_configs_list:
+        model_configs_list = DEFAULT_MODEL_CONFIGS_TO_TEST  # Fallback to default
         logger.info(f"No model_configs provided or empty, using default: {model_configs_list}")
 
-    # --- Set metrics filename prefix based on the model config(s) being run --- 
+    # --- Set metrics filename prefix based on the model config(s) being run ---
     if args.enable_metrics:
         config_identifier = model_configs_list[0] if len(model_configs_list) == 1 else f"{len(model_configs_list)}_configs"
         provider_name = "unknown_provider"
         try:
-            if model_configs_list: # Ensure there's at least one config
+            if model_configs_list:  # Ensure there's at least one config
                 first_config_obj = get_model_config(model_configs_list[0])
                 provider_name = first_config_obj.provider
-        except Exception: 
+        except Exception:
             logger.warning(f"Could not determine provider for metrics filename from config: {model_configs_list[0] if model_configs_list else 'N/A'}")
-        
+
         prefix = f"{provider_name}_{config_identifier}"
         set_metrics_filename_prefix(prefix)
         logger.info(f"Metrics enabled. Filename prefix set to: {prefix}")
@@ -382,7 +382,7 @@ if __name__ == "__main__":
 
     # Ensure `main` returns an exit code which is then used by sys.exit
     exit_code_from_main = asyncio.run(main(
-        task_list_file=args.task_list_file, # Pass the arg here
+        task_list_file=args.task_list_file,  # Pass the arg here
         model_configs_to_test=model_configs_list,
         data_dir=args.data_dir,
         submissions_root=args.submissions_root,
@@ -391,5 +391,5 @@ if __name__ == "__main__":
         num_attempts=args.num_attempts,
         retry_attempts=args.retry_attempts
     ))
-    
-    sys.exit(exit_code_from_main) 
+
+    sys.exit(exit_code_from_main)

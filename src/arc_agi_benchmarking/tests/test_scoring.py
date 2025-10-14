@@ -96,7 +96,7 @@ SUBMISSION_PARTIAL = [
 # Expected score: 1/3
 SUBMISSION_MULTI_ATTEMPT = [
     # Pair 0
-    {             
+    {
         "attempt_1": {"answer": [[0, 0], [0, 0]], "metadata": {**DEFAULT_METADATA, "pair_index": 0, "cost": {**DEFAULT_COST_METADATA, "total_cost": 0.1}}},
         "attempt_2": {"answer": [[1, 1], [1, 1]], "metadata": {**DEFAULT_METADATA, "pair_index": 0, "cost": {**DEFAULT_COST_METADATA, "total_cost": 0.15}}}
     },
@@ -138,7 +138,7 @@ SUBMISSION_DIFF_PIXELS = [
 # Expected score: 2/3
 SUBMISSION_NONE = [
     # Pair 0
-    {"attempt_1": None}, # Attempt 1 is None for this pair
+    {"attempt_1": None},  # Attempt 1 is None for this pair
     # Pair 1
     {"attempt_1": {"answer": [[2, 2]], "metadata": {**DEFAULT_METADATA, "pair_index": 1}}},
     # Pair 2
@@ -151,7 +151,7 @@ SUBMISSION_NONE = [
 # Expected score: 2/3
 SUBMISSION_EMPTY_LIST = [
     # Pair 0
-    {"attempt_1": {"answer": [], "metadata": {**DEFAULT_METADATA, "pair_index": 0}}}, # Empty list
+    {"attempt_1": {"answer": [], "metadata": {**DEFAULT_METADATA, "pair_index": 0}}},  # Empty list
     # Pair 1
     {"attempt_1": {"answer": [[2, 2]], "metadata": {**DEFAULT_METADATA, "pair_index": 1}}},
     # Pair 2
@@ -176,21 +176,21 @@ SUBMISSION_PAIR_INDEX_META = [
 # 10. Attempt data is not a dictionary
 # Tests error handling: ensures a TypeError is raised if attempt data is not a dict.
 SUBMISSION_MALFORMED_NOT_DICT = [
-    {"attempt_1": "not_a_dictionary"}, # Invalid attempt data type
+    {"attempt_1": "not_a_dictionary"},  # Invalid attempt data type
     {"attempt_1": {"answer": [[2, 2]], "metadata": {**DEFAULT_METADATA, "pair_index": 1}}}
 ]
 
 # 11. Attempt data is missing 'metadata' key
 # Tests error handling: ensures a KeyError is raised if the 'metadata' key is missing.
 SUBMISSION_MALFORMED_NO_METADATA = [
-    {"attempt_1": {"answer": [[1, 1], [1, 1]]}}, # Missing metadata
+    {"attempt_1": {"answer": [[1, 1], [1, 1]]}},  # Missing metadata
     {"attempt_1": {"answer": [[2, 2]], "metadata": {**DEFAULT_METADATA, "pair_index": 1}}}
 ]
 
 # 12. Attempt data is missing 'answer' key
 # Tests error handling: ensures a KeyError is raised if the 'answer' key is missing.
 SUBMISSION_MALFORMED_NO_ANSWER = [
-    {"attempt_1": {"metadata": {**DEFAULT_METADATA, "pair_index": 0}}}, # Missing answer
+    {"attempt_1": {"metadata": {**DEFAULT_METADATA, "pair_index": 0}}},  # Missing answer
     {"attempt_1": {"answer": [[2, 2]], "metadata": {**DEFAULT_METADATA, "pair_index": 1}}}
 ]
 
@@ -213,7 +213,7 @@ def arc_scorer_fixture(tmp_path):
     create_mock_json(submission_file, {})
 
     scorer = ARCScorer(str(task_dir), str(submission_dir))
-    return scorer, submission_dir # Return scorer and submission dir path
+    return scorer, submission_dir  # Return scorer and submission dir path
 
 
 # --- Test Functions ---
@@ -276,7 +276,7 @@ def test_none_submission(arc_scorer_fixture):
     # Pair 2: attempt_1 cost 0.1. Cost contribution = 0.1. num_attempts = 1.
     # Total cost = 0.1 + 0.1 = 0.2.
     # Total attempts = 1 + 1 + 1 = 3. (num_attempts += len(pair_attempts) on line 167)
-    run_test_scenario(arc_scorer_fixture, SUBMISSION_NONE, 2.0/3.0, 0.2, 3) # Expected attempts = 3
+    run_test_scenario(arc_scorer_fixture, SUBMISSION_NONE, 2.0/3.0, 0.2, 3)  # Expected attempts = 3
 
 
 def test_empty_list_submission(arc_scorer_fixture):

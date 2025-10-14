@@ -18,7 +18,7 @@ def reset_metrics_fixture():
         run_all.PROVIDER_RATE_LIMITERS.clear()
         run_all.MODEL_CONFIG_CACHE.clear()
     except ImportError:
-        pass # Ignore if cli.run_all not available (e.g. running only metrics tests)
+        pass  # Ignore if cli.run_all not available (e.g. running only metrics tests)
     # No yield needed, just run before
 
 @pytest.fixture
@@ -54,10 +54,10 @@ def test_timeit_decorator():
     record = timing_data[0]
 
     assert record["function_name"] == "_dummy_timed_function"
-    assert record["module"] == __name__ # Should be the module where the func is defined
+    assert record["module"] == __name__  # Should be the module where the func is defined
     assert isinstance(record["duration_ms"], float)
-    assert record["duration_ms"] > 15 # Should be roughly 20ms, allow some buffer
-    assert record["duration_ms"] < 50 # Sanity check upper bound
+    assert record["duration_ms"] > 15  # Should be roughly 20ms, allow some buffer
+    assert record["duration_ms"] < 50  # Sanity check upper bound
     assert isinstance(record["start_time_ns"], int)
     assert isinstance(record["end_time_ns"], int)
     assert record["end_time_ns"] > record["start_time_ns"]
@@ -91,7 +91,7 @@ def test_get_timing_data_returns_copy():
     data1.append({"fake": "data"})
 
     data2 = metrics.get_timing_data()
-    assert len(data2) == 1 # Should not have the appended fake data
+    assert len(data2) == 1  # Should not have the appended fake data
     assert data1 != data2
 
 def test_dump_timing(set_metrics_output_dir):
@@ -109,11 +109,11 @@ def test_dump_timing(set_metrics_output_dir):
     with open(expected_file, 'r', newline='') as f:
         reader = csv.reader(f)
         header = next(reader)
-        assert len(header) > 5 # Check header exists and has expected columns
+        assert len(header) > 5  # Check header exists and has expected columns
         assert "function_name" in header
         assert "duration_ms" in header
         rows = list(reader)
-        assert len(rows) == 2 # Two function calls were made
+        assert len(rows) == 2  # Two function calls were made
         assert rows[0][header.index("function_name")] == "_dummy_timed_function"
         assert float(rows[0][header.index("duration_ms")]) > 5
 
@@ -136,7 +136,7 @@ def test_reset_metrics():
 
     assert len(metrics.get_timing_data()) == 1
 
-    metrics.reset_metrics() # Called by fixture, but test explicitly too
+    metrics.reset_metrics()  # Called by fixture, but test explicitly too
 
     assert len(metrics.get_timing_data()) == 0
 
@@ -147,11 +147,11 @@ def test_metrics_disabled():
 
     # Call timed function and counter
     result = _dummy_timed_function(delay=0.01)
-    assert result == "done" # Function should still run
+    assert result == "done"  # Function should still run
 
     # Assert that no data was collected
     timing_data = metrics.get_timing_data()
     assert len(timing_data) == 0
 
 # Note: Testing the actual execution via atexit is complex and often skipped
-# in favor of directly testing the dump functions. 
+# in favor of directly testing the dump functions.

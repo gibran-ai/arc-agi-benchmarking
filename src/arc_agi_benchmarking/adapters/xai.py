@@ -26,7 +26,7 @@ class XAIAdapter(OpenAIBaseAdapter):
         api_key = os.environ.get("XAI_API_KEY")
         if not api_key:
             raise ValueError("XAI_API_KEY not found in environment variables")
-        
+
         client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1", timeout=httpx.Timeout(3600, connect=30))
         return client
 
@@ -37,17 +37,17 @@ class XAIAdapter(OpenAIBaseAdapter):
         Specific reasoning token handling might might overriding _get_usage later.
         """
         start_time = datetime.now(timezone.utc)
-        
+
         # Use the inherited call_ai_model
         # Assumes XAI uses CHAT_COMPLETIONS or RESPONSES API type defined in config
         response = self._call_ai_model(prompt)
         logger.debug(f"XAI response: {response}")
-        
+
         end_time = datetime.now(timezone.utc)
 
         # Centralised cost calculation (includes sanity-check & calls _get_usage internally)
         cost = self._calculate_cost(response)
-        
+
         # Retrieve usage *after* cost calculation, as cost calc might infer/update reasoning tokens
         usage = self._get_usage(response)
 
@@ -91,11 +91,11 @@ class XAIAdapter(OpenAIBaseAdapter):
 
         attempt = Attempt(
             metadata=metadata,
-            answer=self._get_content(response) # Inherited
+            answer=self._get_content(response)  # Inherited
         )
         logger.debug(f"XAI attempt: {attempt}")
         return attempt
-    
+
     def _get_reasoning_summary(self, response: Any) -> str:
         """Get the reasoning summary from the response."""
         reasoning = ""
@@ -108,14 +108,14 @@ class XAIAdapter(OpenAIBaseAdapter):
             # Fallback: check if it's in a nested structure
             if not reasoning and hasattr(response, 'choices') and response.choices and hasattr(response.choices[0], 'reasoning'):
                 reasoning = getattr(response.choices[0], 'reasoning', "") or ""
-        
+
         return reasoning.strip() if reasoning else ""
 
     def extract_json_from_response(self, input_response: str) -> list[list[int]] | None:
         """Placeholder for XAI-specific JSON extraction. Assumes standard OpenAI format for now."""
 
         prompt = f"""
-You are a helpful assistant. Extract only the JSON of the test output from the following response. 
+You are a helpful assistant. Extract only the JSON of the test output from the following response.
 Do not include any explanation or additional text; only return valid JSON.
 
 Response:
@@ -134,7 +134,7 @@ The JSON should be in this format:
             completion = self._chat_completion(
                 messages=[{"role": "user", "content": prompt}],
             )
-            assistant_content = self._get_content(completion) # Inherited
+            assistant_content = self._get_content(completion)  # Inherited
         except Exception as e:
             print(f"Error during AI-based JSON extraction via XAI: {e}")
             assistant_content = input_response

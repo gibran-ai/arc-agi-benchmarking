@@ -18,23 +18,23 @@ class AsyncRequestRateLimiter:
             raise ValueError("Rate must be a positive number")
         if not isinstance(capacity, (int, float)) or not capacity >= 0:
             raise ValueError("Capacity must be a non-negative number")
-            
+
         # Use float type directly
-        self._rate = float(rate) 
+        self._rate = float(rate)
         self._capacity = float(capacity)
-        self._available_requests = self._capacity # Start full (float)
-        
-        self._last_refill_time = time.monotonic() # float
+        self._available_requests = self._capacity  # Start full (float)
+
+        self._last_refill_time = time.monotonic()  # float
         self._lock = asyncio.Lock()
 
     def _refill(self):
         """Calculates and adds allowed requests based on elapsed time.
-        
+
         MUST be called when self._lock is acquired.
         Uses float for calculations.
         """
         now = time.monotonic()
-        elapsed = now - self._last_refill_time # elapsed is float
+        elapsed = now - self._last_refill_time  # elapsed is float
         if elapsed > 0:
             # Direct float calculation
             new_requests_allowance = elapsed * self._rate
@@ -54,7 +54,7 @@ class AsyncRequestRateLimiter:
         """
         if not isinstance(requests_needed, int) or requests_needed <= 0:
             raise ValueError("requests_needed must be a positive integer")
-            
+
         # Compare int requests_needed directly with float capacity
         if requests_needed > self._capacity:
             raise ValueError(
@@ -65,12 +65,12 @@ class AsyncRequestRateLimiter:
         while True:
             async with self._lock:
                 self._refill()
-                
+
                 # Compare float >= int
                 if self._available_requests >= requests_needed:
                     self._available_requests -= requests_needed
                     return
-                
+
                 # Calculate wait time using float
                 needed = requests_needed - self._available_requests
                 # Basic check to avoid division by zero if rate is zero (shouldn't happen)
@@ -80,26 +80,26 @@ class AsyncRequestRateLimiter:
 
     async def __aenter__(self):
         """Async context manager entry point.
-        
+
         Acquires 1 request allowance, waiting if necessary.
         Allows usage like: `async with limiter:`
         """
-        await self.acquire(1) 
+        await self.acquire(1)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit point.
-        
+
         No action needed for this type of rate limiter (requests are consumed).
         """
         pass
 
-    async def get_available_requests(self) -> float: # Return type is float
+    async def get_available_requests(self) -> float:  # Return type is float
          """Returns the approximate current number of available requests as float.
-         
+
          Performs a refill check before returning the value for accuracy.
          Uses the internal lock for consistency.
          """
          async with self._lock:
              self._refill()
-             return self._available_requests 
+             return self._available_requests

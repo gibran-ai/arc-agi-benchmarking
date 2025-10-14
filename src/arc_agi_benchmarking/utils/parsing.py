@@ -32,7 +32,7 @@ def backscan_json_parser(log_str: str) -> Optional[List[List[int]]]:
 
     opening_bracket = '[' if closing_bracket == ']' else '{'
 
-    bracket_counter = 1 # Start at 1 to account for the found closing bracket
+    bracket_counter = 1  # Start at 1 to account for the found closing bracket
     start_idx = -1
 
     for i in range(last_bracket_idx - 1, -1, -1):
@@ -97,7 +97,7 @@ def parse_and_validate_json(response: str) -> Optional[List[List[int]]]:
         if result is not None:
             # Validate the structure: must be list of lists
             if isinstance(result, list) and all(isinstance(row, list) for row in result):
-                return result # Return immediately on first success and validation
+                return result  # Return immediately on first success and validation
             else:
                 # Raise error if structure is invalid, triggering retry in main loop
                 raise ValueError(f"Parser {parser.__name__} produced invalid structure: {result!r}")

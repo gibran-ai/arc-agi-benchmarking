@@ -22,7 +22,7 @@ class ARCPair(BaseModel):
 class ARCTask(BaseModel):
     train: List[ARCPair]
     test: List[ARCPair]
-    
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ARCTask):
             return False
@@ -30,16 +30,16 @@ class ARCTask(BaseModel):
                 len(self.test) == len(other.test) and
                 all(a == b for a, b in zip(self.train, other.train)) and
                 all(a == b for a, b in zip(self.test, other.test)))
-    
+
     def __repr__(self) -> str:
         n_train = len(self.train)
         n_test = len(self.test)
         task_hash = self.get_hash()
         return f"ARCTask({n_train} train + {n_test} test, {task_hash})"
-    
+
     def __str__(self) -> str:
         return self.__repr__()
-    
+
     def get_hash(self) -> str:
         """Generate a stable hash of the form XXXXX-XXXXX-XXXXX_XXXXX-XXXXX-XXXXX where
         the first set is one hash for each train pair, and the second set is one hash for each test pair"""
@@ -49,37 +49,37 @@ class ARCTask(BaseModel):
             pair_json = json.dumps(pair.model_dump(), sort_keys=True)
             pair_hash = hashlib.sha256(pair_json.encode()).hexdigest()[:5]
             train_hashes.append(pair_hash)
-        
+
         # Generate hash for each test pair
         test_hashes = []
         for pair in self.test:
             pair_json = json.dumps(pair.model_dump(), sort_keys=True)
             pair_hash = hashlib.sha256(pair_json.encode()).hexdigest()[:5]
             test_hashes.append(pair_hash)
-        
+
         # Format as XXXXX-XXXXX-XXXXX_XXXXX-XXXXX-XXXXX
         train_part = "-".join(train_hashes)
         test_part = "-".join(test_hashes)
-        
+
         return f"{train_part}_{test_part}"
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return self.model_dump()
-    
+
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.to_dict(), indent=indent)
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ARCTask':
         if isinstance(data, str):
             data = json.loads(data)
         return cls.model_validate(data)
-    
+
     @classmethod
     def load_from_file(cls, filepath: str) -> 'ARCTask':
         with open(filepath, 'r') as f:
             return cls.from_dict(json.loads(f.read()))
-    
+
     def save_to_file(self, filepath: str, indent: int = 2) -> None:
         with open(filepath, 'w') as f:
             f.write(self.to_json(indent=indent))
@@ -106,7 +106,7 @@ class Usage(BaseModel):
 
 class Cost(BaseModel):
     prompt_cost: float
-    completion_cost: float # Cost of completion_tokens * output_cost_per_token
+    completion_cost: float  # Cost of completion_tokens * output_cost_per_token
     reasoning_cost: Optional[float] = None  # Cost of reasoning_tokens * output_cost_per_token. Optional as not all providers return it.
     total_cost: float      # Sum of prompt_cost, completion_cost, and reasoning_cost
 
@@ -123,7 +123,7 @@ class AttemptMetadata(BaseModel):
     task_id: Optional[str] = None
     pair_index: Optional[int] = 0
     test_id: Optional[str] = None
-    
+
     model_config = {
         'json_encoders': {
             datetime: lambda v: v.isoformat()
@@ -135,7 +135,7 @@ class AttemptMetadata(BaseModel):
         Customize string representation for prettier output
         """
         return json.dumps(self.model_dump(), indent=2, default=str)
-    
+
     __repr__ = __str__
 
 class Attempt(BaseModel):
@@ -184,7 +184,7 @@ class TestPairAttempts(BaseModel):
         """
         if isinstance(values, list):
             return values
-            
+
         attempts = values
         if isinstance(attempts, dict):
             # Check if keys follow the pattern 'attempt_X'
@@ -193,12 +193,12 @@ class TestPairAttempts(BaseModel):
             for key in sorted(attempts.keys()):
                 if key.startswith('attempt_'):
                     attempt_list.append(attempts[key])
-            
+
             values['attempts'] = attempt_list
-        
-            
+
+
         return values
-    
+
     def __getitem__(self, index):
         """
         Allow subscripting to access attempts directly.
@@ -221,7 +221,7 @@ class TestPairAttempts(BaseModel):
         elif isinstance(self.attempts, dict):
             return len(self.attempts)
         return 0
-    
+
     def __iter__(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         """
         Allow iteration over attempts.
@@ -240,13 +240,13 @@ class BenchmarkedTaskResults(BaseModel):
 
     def __len__(self):
         return len(self.test_pairs)
-    
+
     def __getitem__(self, index):
         return self.test_pairs[index]
-    
+
     def __iter__(self):  # pyright: ignore[reportIncompatibleMethodOverride]
         return iter(self.test_pairs)
-    
+
 class ModelPricing(BaseModel):
     date: str
     input: float
@@ -261,37 +261,37 @@ class ModelConfig(BaseModel):
     model_name: str  # The actual model name to use with the provider's API
     provider: str
     pricing: ModelPricing
-    api_type: Optional[str] = APIType.CHAT_COMPLETIONS # currently only used by openai
+    api_type: Optional[str] = APIType.CHAT_COMPLETIONS  # currently only used by openai
     kwargs: Dict[str, Any] = {}
-    
+
     model_config = {
         'protected_namespaces': (),
         'extra': 'allow'
     }
-    
+
     @model_validator(mode='before')
     @classmethod
     def extract_kwargs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Extract all extra fields into kwargs"""
         if not isinstance(values, dict):
             return values
-            
+
         kwargs = {}
         known_fields = {'name', 'provider', 'pricing', 'kwargs', 'model_name', 'api_type'}
-        
+
         for field_name, value in values.items():
             if field_name not in known_fields:
                 kwargs[field_name] = value
-                
+
         # Update the kwargs field with our extracted values
         if kwargs:
             values['kwargs'] = {**kwargs, **values.get('kwargs', {})}
-            
+
             # Remove the extracted fields from the top level
             for field_name in kwargs:
                 if field_name in values:
                     del values[field_name]
-                    
+
         return values
 
 class ScoringResult(BaseModel):
@@ -300,7 +300,7 @@ class ScoringResult(BaseModel):
     """
     score: float  # Score between 0.0 and 1.0 representing accuracy
     total_cost: float   # Total cost of all attempts
-    attempts: int # Total number of attempts made
-    output_tokens: int # Total number of output tokens used
-    duration: float # Total duration of all attempts in seconds
-    num_attempts_with_empty_list: int # Number of attempts that returned an empty list
+    attempts: int  # Total number of attempts made
+    output_tokens: int  # Total number of output tokens used
+    duration: float  # Total duration of all attempts in seconds
+    num_attempts_with_empty_list: int  # Number of attempts that returned an empty list

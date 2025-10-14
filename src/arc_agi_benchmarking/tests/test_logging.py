@@ -14,7 +14,7 @@ if project_root not in sys.path:
 # Imports now possible after path adjustment
 from main import ARCTester
 from cli.run_all import main, run_single_test_wrapper, AsyncRequestRateLimiter, get_or_create_rate_limiter
-from arc_agi_benchmarking.schemas import Attempt # Import Attempt schema
+from arc_agi_benchmarking.schemas import Attempt  # Import Attempt schema
 
 # --- Test ARCTester Logging (main.py) ---
 
@@ -42,7 +42,7 @@ def test_arctester_log_levels(
 
     # Setup Mocks
     mock_provider_instance = MagicMock()
-    
+
     # Create a mock Attempt object that can be dumped and has necessary attributes
     mock_attempt_obj = MagicMock(spec=Attempt)
     mock_attempt_obj.metadata = MagicMock()
@@ -50,15 +50,15 @@ def test_arctester_log_levels(
     mock_attempt_obj.metadata.choices = [MagicMock(message=MagicMock(content="Valid content for mock parser"))]
     # Define what model_dump should return - a serializable dict
     mock_attempt_obj.model_dump.return_value = {
-        "task_id": "mock_task_001", 
+        "task_id": "mock_task_001",
         "test_id": "mock_config",
         "pair_index": 0,
-        "answer": [[1]], # This should match what the extractor returns
-        "metadata": {"usage": {"total_tokens": 10}} # Example metadata
+        "answer": [[1]],  # This should match what the extractor returns
+        "metadata": {"usage": {"total_tokens": 10}}  # Example metadata
     }
     # Mock make_prediction to return this mock Attempt
     mock_provider_instance.make_prediction.return_value = mock_attempt_obj
-    
+
     mock_init_provider.return_value = mock_provider_instance
 
     # Mock provider extractor to return a valid answer structure when called
@@ -66,8 +66,8 @@ def test_arctester_log_levels(
 
     mock_utils.validate_data.return_value = True
     mock_utils.submission_exists.return_value = False
-    mock_utils.get_train_pairs_from_task.return_value = [] # Empty training pairs
-    mock_utils.get_test_input_from_task.return_value = [MagicMock(input=[[0]])] # Single test pair
+    mock_utils.get_train_pairs_from_task.return_value = []  # Empty training pairs
+    mock_utils.get_test_input_from_task.return_value = [MagicMock(input=[[0]])]  # Single test pair
     mock_utils.save_submission.return_value = "mock/path/saved.json"
     mock_utils.read_models_config.return_value = MagicMock(provider="mock_provider", model_name="mock_model")
 
@@ -76,7 +76,7 @@ def test_arctester_log_levels(
         config="mock_config",
         save_submission_dir="mock_submissions/mock_config",
         overwrite_submission=True,
-        print_submission=True, # Keep this True to ensure submission log is attempted
+        print_submission=True,  # Keep this True to ensure submission log is attempted
         num_attempts=1,
         retry_attempts=1
     )
@@ -100,17 +100,17 @@ def test_arctester_log_levels(
 def test_orchestrator_rate_limiter_log(caplog):
     """Specifically test if the rate limiter init log is captured."""
     caplog.set_level(logging.INFO, logger='cli.run_all')
-    
+
     # Ensure caches are clear for this specific test
     from cli import run_all
     run_all.PROVIDER_RATE_LIMITERS.clear()
     run_all.MODEL_CONFIG_CACHE.clear()
-    
+
     # Call the function that logs
     _ = get_or_create_rate_limiter("test_provider", {})
-    
+
     # Check if the specific log message exists
-    found = any(rec.getMessage().startswith("Initializing rate limiter for provider 'test_provider'") 
+    found = any(rec.getMessage().startswith("Initializing rate limiter for provider 'test_provider'")
                 for rec in caplog.records if rec.name == 'cli.run_all' and rec.levelno == logging.INFO)
     assert found, f"Rate limiter init log not found. Logs: {caplog.text}"
 
@@ -121,7 +121,7 @@ def test_orchestrator_rate_limiter_log(caplog):
     [
         ("DEBUG", True),  # DEBUG level should show INFO logs
         ("INFO", True),   # INFO level should show INFO logs
-        ("WARNING", False), # WARNING level should filter out INFO logs
+        ("WARNING", False),  # WARNING level should filter out INFO logs
         ("ERROR", False),   # ERROR level should filter out INFO logs
     ]
 )
@@ -185,7 +185,7 @@ async def test_orchestrator_log_levels(
 @patch('cli.run_all.read_provider_rate_limits', return_value={})
 @patch('cli.run_all.get_model_config')
 @patch('builtins.open')
-@patch('cli.run_all.exit', side_effect=lambda code: None) # Prevent SystemExit
+@patch('cli.run_all.exit', side_effect=lambda code: None)  # Prevent SystemExit
 async def test_orchestrator_log_level_none(mock_exit, mock_open, mock_get_model_config, mock_read_limits, mock_run_wrapper, caplog):
     """
     Tests that --log-level NONE effectively silences logging output.
@@ -195,11 +195,11 @@ async def test_orchestrator_log_level_none(mock_exit, mock_open, mock_get_model_
     # logging.getLogger().setLevel(logging.CRITICAL + 1) # REMOVED - Rely on cli/run_all setup for NONE
     # logging.getLogger('cli.run_all').setLevel(logging.CRITICAL + 1) # REMOVED
     # Caplog captures everything regardless of handler levels, check records
-    caplog.set_level(logging.DEBUG) 
+    caplog.set_level(logging.DEBUG)
 
     mock_model_config = MagicMock(provider="mock_provider")
     mock_get_model_config.return_value = mock_model_config
-    
+
     # Make mock_open return an object that supports context management AND iteration
     mock_file_handle = MagicMock()
     file_lines = ["task1\n"]
@@ -212,7 +212,7 @@ async def test_orchestrator_log_level_none(mock_exit, mock_open, mock_get_model_
     logging.getLogger('cli.run_all').setLevel(logging.CRITICAL + 1)
     # Also set root logger high in case of propagation or library logging
     logging.getLogger().setLevel(logging.CRITICAL + 1)
-    
+
     model_configs_list = ['mock_config']
 
     await main(
