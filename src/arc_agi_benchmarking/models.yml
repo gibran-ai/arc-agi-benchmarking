@@ -600,6 +600,68 @@ models:
 #### Anthropic ####
 ###################
 
+  - name: "claude-haiku-4-5-20251001-thinking-32k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 32000
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001-thinking-16k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 16000
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001-thinking-8k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 8000
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001-thinking-1k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 1024
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
   - name: "claude-sonnet-4-5-20250929-thinking-32k"
     model_name: "claude-sonnet-4-5-20250929"
     provider: "anthropic"
