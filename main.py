@@ -1,8 +1,7 @@
 import sys
 import os
 
-# Added: Add the src directory to sys.path to allow direct execution of main.py
-# This assumes main.py is in the project root and 'src' is a subdirectory.
+# Add the src directory to sys.path to allow direct execution of main.py
 _project_root = os.path.dirname(os.path.abspath(__file__))
 _src_dir = os.path.join(_project_root, 'src')
 if _src_dir not in sys.path:
@@ -13,9 +12,9 @@ from arc_agi_benchmarking.adapters import ProviderAdapter, AnthropicAdapter, Ope
 from dotenv import load_dotenv
 import arc_agi_benchmarking.utils as utils
 from arc_agi_benchmarking.utils.metrics import timeit, set_metrics_enabled
-from arc_agi_benchmarking.schemas import ARCTaskOutput, ARCPair, Attempt
+from arc_agi_benchmarking.schemas import ARCPair, Attempt
 from arc_agi_benchmarking.prompts.prompt_manager import convert_task_pairs_to_prompt
-from typing import List, Any, Optional
+from typing import List, Optional
 import argparse
 import logging
 
@@ -159,6 +158,7 @@ class ARCTester:
 
         train_pairs = utils.get_train_pairs_from_task(data_dir, task_id)
         test_input_pairs = utils.get_test_input_from_task(data_dir, task_id)
+        test_pairs = utils.get_test_pairs_from_task(data_dir, task_id)
 
         # Go through each test pair to get a prediction. 96% of challenges have 1 pair.
         for t, pair_input_obj in enumerate(test_input_pairs):
@@ -186,6 +186,8 @@ class ARCTester:
 
                         if attempt_obj is not None:
                             logger.debug(f"    Task {task_id}, ModelConfig {test_id}, Pair {pair_index+1}, Attempt #{attempt_num} successful. Prediction: {attempt_obj.answer}")
+                            # Set correct field by comparing to ground truth
+                            attempt_obj.correct = attempt_obj.answer == test_pairs[pair_index].output
                             pair_submission_attempts[attempt_key] = attempt_obj.model_dump(mode='json')
                             break 
                     except Exception as e:
