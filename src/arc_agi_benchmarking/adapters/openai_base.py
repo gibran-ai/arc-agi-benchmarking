@@ -132,17 +132,28 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
             content_chunks = []
             last_chunk = None
             finish_reason = "stop"
-
+            chunk_count = 0
+            
             for chunk in stream:
                 last_chunk = chunk
+                chunk_count += 1
 
                 # Extract content from chunk
-                if chunk.choices and chunk.choices[0].delta.content:
-                    content_chunks.append(chunk.choices[0].delta.content)
+                delta_content = ""
+                if chunk.choices:
+                    delta_content = chunk.choices[0].delta.content or ""
+                    if delta_content:
+                        content_chunks.append(delta_content)
 
                 # Track finish reason
                 if chunk.choices and chunk.choices[0].finish_reason:
                     finish_reason = chunk.choices[0].finish_reason
+
+                if chunk_count % 200 == 0 and logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        f"Streaming progress: {chunk_count} chunks received; "
+                        f"latest chunk chars={len(delta_content)}"
+                    )
 
             # Build final response
             final_content = "".join(content_chunks)
@@ -160,9 +171,11 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
                 usage_data = CompletionUsage(
                     prompt_tokens=0, completion_tokens=0, total_tokens=0
                 )
-
-            logger.debug(f"Streaming complete. Content length: {len(final_content)}")
-
+            
+            logger.debug(
+                f"Streaming complete. Chunks received: {chunk_count}, Content length: {len(final_content)}"
+            )
+            
             return ChatCompletion(
                 id=response_id,
                 choices=[
@@ -246,16 +259,24 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
             response_id = None
             finish_reason = "stop"
             usage_data = None
-
+            chunk_count = 0
+            
             for chunk in stream:
+                chunk_count += 1
+
                 # Extract response ID
                 if chunk.type == "response.created":
                     response_id = chunk.response.id
 
                 # Extract content deltas
-                if chunk.type == "response.output_text.delta":
-                    content_chunks.append(chunk.delta)
-
+                if chunk.type == 'response.output_text.delta':
+                    delta = chunk.delta or ""
+                    if delta:
+                        content_chunks.append(delta)
+                    delta_length = len(delta)
+                else:
+                    delta_length = 0
+                
                 # Track finish reason
                 if hasattr(chunk, "finish_reason") and chunk.finish_reason:
                     finish_reason = chunk.finish_reason
@@ -264,12 +285,20 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
                 if hasattr(chunk, "response") and chunk.response:
                     usage_data = self._get_usage(chunk.response)
 
+                if chunk_count % 10 == 0 and logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        f"Streaming progress: {chunk_count} chunks received; "
+                        f"last chunk type={getattr(chunk, 'type', 'unknown')}, chars={delta_length}"
+                    )
+            
             # Build final response
             final_content = "".join(content_chunks)
             response_id = response_id or f"stream-{int(time.time())}"
-
-            logger.debug(f"Streaming complete. Content length: {len(final_content)}")
-
+            
+            logger.debug(
+                f"Streaming complete. Chunks received: {chunk_count}, Content length: {len(final_content)}"
+            )
+            
             return _ResponsesResponse(
                 model_name=self.model_config.model_name,
                 content=final_content,
@@ -504,7 +533,7 @@ class OpenAIBaseAdapter(ProviderAdapter, abc.ABC):
 
         return Cost(
             prompt_cost=prompt_cost,
-            completion_cost=completion_cost,  # Cost of 'actual' completion
-            reasoning_cost=reasoning_cost,  # Cost of reasoning part
-            total_cost=total_cost,  # True total expenditure
-        )
+            completion_cost=completion_cost, # Cost of 'actual' completion
+            reasoning_cost=reasoning_cost,   # Cost of reasoning part
+            total_cost=total_cost,           # True total expenditure
+        ) 

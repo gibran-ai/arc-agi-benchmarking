@@ -31,6 +31,20 @@ def get_test_input_from_task(data_dir, task_id) -> List[ARCPair]:
 
     return pairs
 
+def get_test_pairs_from_task(data_dir, task_id) -> List[ARCPair]:
+    """
+    Loads up task test pairs from task json file with both input and output
+    """
+    task_file = os.path.join(data_dir, f"{task_id}.json")
+    with open(task_file, 'r') as f:
+        task_data = json.load(f)
+
+    pairs = []
+    for pair in task_data['test']:
+        pairs.append(ARCPair(input=pair['input'], output=pair.get('output')))
+
+    return pairs
+
 
 def save_submission(save_submission_dir: str, task_id: str, task_attempts) -> None:
     """

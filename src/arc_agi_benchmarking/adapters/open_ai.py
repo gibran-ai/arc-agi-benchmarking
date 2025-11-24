@@ -30,8 +30,11 @@ class OpenAIAdapter(OpenAIBaseAdapter):
         """
         if not os.environ.get("OPENAI_API_KEY"):
             raise ValueError("OPENAI_API_KEY not found in environment variables")
-
-        client = OpenAI()
+        
+        client = OpenAI(
+            max_retries=0,
+            timeout=1800,
+        )
         return client
 
     def make_prediction(

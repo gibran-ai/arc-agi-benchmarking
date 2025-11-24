@@ -53,9 +53,18 @@ class AnthropicAdapter(ProviderAdapter):
         """
         start_time = datetime.now(timezone.utc)
 
-        messages = [{"role": "user", "content": prompt}]
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
 
-        response = self.chat_completion(messages)
+        # Check if streaming is enabled
+        stream_enabled = self.model_config.kwargs.get('stream', False) or getattr(self.model_config, 'stream', False)
+
+        if stream_enabled:
+            response = self.chat_completion_stream(messages)
+        else:
+            response = self.chat_completion(messages)
+
         end_time = datetime.now(timezone.utc)
 
         # Use pricing from model config
@@ -150,7 +159,37 @@ class AnthropicAdapter(ProviderAdapter):
             **self.model_config.kwargs,
         )
 
-    def _get_reasoning_summary(self, response: Any) -> str | None:
+    def chat_completion_stream(self, messages, tools=[]):
+        """
+        Make a streaming API call to Anthropic and return the final complete response.
+        Only the final message is returned; intermediate deltas are ignored.
+        """
+        logger.debug(f"Starting streaming for Anthropic model: {self.model_config.model_name}")
+
+        # Prepare kwargs for streaming, removing 'stream' to avoid duplication
+        stream_kwargs = {k: v for k, v in self.model_config.kwargs.items() if k != 'stream'}
+
+        try:
+            # Create the stream
+            with self.client.messages.stream(
+                model=self.model_config.model_name,
+                messages=messages,
+                tools=tools,
+                **stream_kwargs
+            ) as stream:
+                # Accumulate the complete message
+                # The stream context manager handles all the event processing
+                # and gives us the final message when done
+                final_message = stream.get_final_message()
+
+            logger.debug(f"Streaming complete for message ID: {final_message.id}")
+            return final_message
+
+        except Exception as e:
+            logger.error(f"Error during Anthropic streaming: {e}")
+            raise
+
+    def _get_reasoning_summary(self, response: Any) -> str:
         """Get the reasoning summary from the response."""
         reasoning_summary = None
         thinking_texts: List[str] = []

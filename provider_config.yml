@@ -7,7 +7,7 @@ openai:
   period: 60    # per 60 seconds
 
 anthropic:
-  rate: 400     # 400 requests
+  rate: 15     # 400 requests
   period: 60    # per 60 seconds
 
 # Provider key for Gemini models, should match 'provider' field in models.yml

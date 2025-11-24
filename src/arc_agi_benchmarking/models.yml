@@ -5,6 +5,19 @@ models:
 #### OpenAI ####
 ################
 
+  - name: "gpt-5-pro-2025-10-06"
+    model_name: "gpt-5-pro-2025-10-06"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+    max_completion_tokens: 272000
+    pricing:
+      date: "2025-10-06"
+      input: 15.00
+      output: 120.00
+
   - name: "gpt-5-2025-08-07-high"
     model_name: "gpt-5-2025-08-07"
     provider: "openai"
@@ -511,6 +524,16 @@ models:
 #### Grok (X.AI) ####
 ###################
 
+  - name: "grok-4-fast-reasoning"
+    model_name: "grok-4-fast-reasoning"
+    provider: "grok"
+    max_completion_tokens: 200000
+    stream: true
+    pricing:
+      date: "2025-10-07"
+      input: 0.20
+      output: 0.50
+
   - name: "grok-3-mini-beta"
     model_name: "grok-3-mini-beta"
     provider: "grok"
@@ -576,6 +599,130 @@ models:
 ###################
 #### Anthropic ####
 ###################
+
+  - name: "claude-haiku-4-5-20251001-thinking-32k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 32000
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001-thinking-16k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 16000
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001-thinking-8k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 8000
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001-thinking-1k"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 1024
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-haiku-4-5-20251001"
+    model_name: "claude-haiku-4-5-20251001"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    pricing:
+      date: "2025-10-15"
+      input: 1.00   # Single input price per 1M tokens.
+      output: 5.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929-thinking-32k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 32000
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929-thinking-16k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 16000
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929-thinking-8k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 8000
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929-thinking-1k"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    thinking:
+      type: "enabled"
+      budget_tokens: 1024
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
+
+  - name: "claude-sonnet-4-5-20250929"
+    model_name: "claude-sonnet-4-5-20250929"
+    provider: "anthropic"
+    max_tokens: 64000
+    stream: true
+    pricing:
+      date: "2025-09-29"
+      input: 3.00   # Single input price per 1M tokens.
+      output: 15.00 # Single output price per 1M tokens.
 
   - name: "claude-4-sonnet-20250522-thinking-8k-bedrock"
     model_name: "anthropic/claude-sonnet-4"
