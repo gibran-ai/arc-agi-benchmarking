@@ -672,6 +672,34 @@ models:
 ################
 
 
+  - name: "gemini-3-pro-preview-low"
+    model_name: "gemini-3-pro-preview"
+    provider: "gemini"
+    max_output_tokens: 65536
+    automatic_function_calling:
+      disable: true
+    thinking_config:
+      include_thoughts: True
+      thinking_level: "low"
+    pricing:
+      date: "2025-11-24"
+      input: 2.00
+      output: 12.00
+
+  - name: "gemini-3-pro-preview-high"
+    model_name: "gemini-3-pro-preview"
+    provider: "gemini"
+    max_output_tokens: 65536
+    automatic_function_calling:
+      disable: true
+    thinking_config:
+      include_thoughts: True
+      thinking_level: "high"
+    pricing:
+      date: "2025-11-24"
+      input: 2.00
+      output: 12.00
+
   - name: "gemini-2-5-flash-preview-05-20"
     model_name: "gemini-2.5-flash-preview-05-20"
     provider: "gemini"
