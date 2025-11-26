@@ -910,6 +910,19 @@ models:
       input: 0.15
       output: 3.50
 
+  - name: "gemini-2-5-flash-thinking-24k"
+    model_name: "gemini-2.5-flash"
+    provider: "gemini"
+    max_output_tokens: 65536
+    thinking_config:
+      thinking_budget: 24576
+    automatic_function_calling:
+      disable: true
+    pricing:
+      date: "2025-11-26"
+      input: 0.30
+      output: 2.50
+
   - name: "gemini-2-5-flash-preview-05-20-thinking-240k"
     model_name: "gemini-2.5-flash-preview-05-20"
     provider: "gemini"
