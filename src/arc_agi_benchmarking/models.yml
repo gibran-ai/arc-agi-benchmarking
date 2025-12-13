@@ -5,6 +5,104 @@ models:
 #### OpenAI ####
 ################
 
+  - name: "gpt-5-2-2025-12-11-thinking-high"
+    model_name: "gpt-5.2-2025-12-11"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+      effort: "high"
+    max_completion_tokens: 128000
+    pricing:
+      date: "2025-11-13"
+      input: 1.75
+      output: 14.00
+
+  - name: "gpt-5-2-2025-12-11-thinking-medium"
+    model_name: "gpt-5.2-2025-12-11"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+      effort: "medium"
+    max_completion_tokens: 128000
+    pricing:
+      date: "2025-11-13"
+      input: 1.75
+      output: 14.00
+
+  - name: "gpt-5-2-2025-12-11-thinking-low"
+    model_name: "gpt-5.2-2025-12-11"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+      effort: "low"
+    max_completion_tokens: 128000
+    pricing:
+      date: "2025-11-13"
+      input: 1.75
+      output: 14.00
+
+  - name: "gpt-5-1-2025-11-13-thinking-high"
+    model_name: "gpt-5.1-2025-11-13"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+      effort: "high"
+    max_completion_tokens: 128000
+    pricing:
+      date: "2025-11-13"
+      input: 1.25
+      output: 10.00
+
+  - name: "gpt-5-1-2025-11-13-thinking-medium"
+    model_name: "gpt-5.1-2025-11-13"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+      effort: "medium"
+    max_completion_tokens: 128000
+    pricing:
+      date: "2025-11-13"
+      input: 1.25
+      output: 10.00
+
+  - name: "gpt-5-1-2025-11-13-thinking-low"
+    model_name: "gpt-5.1-2025-11-13"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+      effort: "low"
+    max_completion_tokens: 128000
+    pricing:
+      date: "2025-11-13"
+      input: 1.25
+      output: 10.00
+
+  - name: "gpt-5-1-2025-11-13-thinking-none"
+    model_name: "gpt-5.1-2025-11-13"
+    provider: "openai"
+    api_type: "responses"
+    background: true
+    reasoning:
+      summary: "auto"
+      effort: "none"
+    max_completion_tokens: 128000
+    pricing:
+      date: "2025-11-13"
+      input: 1.25
+      output: 10.00
+
   - name: "gpt-5-pro-2025-10-06"
     model_name: "gpt-5-pro-2025-10-06"
     provider: "openai"
